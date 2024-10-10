@@ -27,3 +27,16 @@ def accidents_by_date_and_beat():
     return jsonify({'result':result}),200
 
 
+@bp_accident.route('/group/<string:beat>')
+def accidents_group_by_beat1(beat):
+    result = group_accident_by_cause(beat)
+    return jsonify({
+        'beat': beat,
+        'causes': result
+    })
+
+
+@bp_accident.route('/get_stat/<string:beat>', methods=['GET'])
+def accidents_stat_by_beat(beat):
+    result = get_injured_statistics(beat)
+    return result

@@ -1,3 +1,5 @@
+from pickletools import long1
+
 from database.connect import Accidents
 from datetime import datetime, timedelta
 def sum_accidents_by_beat(beat):
@@ -66,7 +68,22 @@ def group_accident_by_cause(beat):
     return list(result)
 
 
+def get_injured_statistics(beat):
+    total_injured = Accidents.find({'LOCATION_ID.BEAT_OF_OCCURRENCE': beat})
+    count = 0
+    count2 = 0
+    for i in list(total_injured):
+        injuries_total = i['INJURIES']['INJURIES_TOTAL']
+        if injuries_total and injuries_total.isdigit():
+            count += int(injuries_total)
 
+        injuries_fatal = i['INJURIES']['INJURIES_FATAL']
+        if injuries_fatal and injuries_fatal.isdigit():
+            count2 += int(injuries_fatal)
+
+    no_ded = count - count2
+
+    return {'total_injured': count, 'injuries_fatal': count2, 'not_ded': no_ded}
 
 
 

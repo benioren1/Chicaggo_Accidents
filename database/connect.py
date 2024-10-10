@@ -8,5 +8,4 @@ Chicago_db = client[DATABASE]
 Accidents = Chicago_db['Accidents']
 
 
-Injuries = Chicago_db['Injuries']
 

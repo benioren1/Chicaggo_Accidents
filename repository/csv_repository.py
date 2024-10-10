@@ -1,5 +1,5 @@
 import csv
-from database.connect import Accidents, Injuries
+from database.connect import Accidents
 
 
 def read_csv(csv_path):
@@ -13,7 +13,6 @@ def read_csv(csv_path):
 def init_chicago_db():
     Accidents.drop()
 
-    Injuries.drop()
 
     for row in read_csv('../data/Traffic_Crashes_-_Crashes - 20k rows.csv'):
         location = {
@@ -39,7 +38,7 @@ def init_chicago_db():
             'INJURIES_UNKNOWN': row['INJURIES_UNKNOWN']
         }
 
-        injurie_id = Injuries.insert_one(injurie).inserted_id
+
 
         date = {
             'CRASH_DATE_EST_I': row['CRASH_DATE_EST_I'],
@@ -85,11 +84,10 @@ def init_chicago_db():
             'WORKERS_PRESENT_I': row['WORKERS_PRESENT_I'],
             'NUM_UNITS': row['NUM_UNITS'],
             'LOCATION_ID': location,
-            'INJURIES': injurie_id,
+            'INJURIES': injurie,
             'TRAFFIC_CONDITION': Traffic_Condition,
             'DATES': date
         }
 
         Accidents.insert_one(accident)
-
 
