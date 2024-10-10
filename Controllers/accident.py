@@ -1,5 +1,5 @@
-from flask import Blueprint, jsonify
-from repository.accident_repo import sum_accidents_by_beat
+from flask import Blueprint, jsonify, request
+from repository.accident_repo import *
 
 bp_accident = Blueprint('accident',__name__)
 
@@ -10,3 +10,20 @@ def accidents_by_beat(beat):
         'beat': beat,
         'accidents': result
     })
+
+
+@bp_accident.route('/by_date_beat',methods=['GET'])
+def accidents_by_date_and_beat():
+    data = request.get_json()
+    start_date = data['start_date']
+    type_date = data['type_date']
+    beat = data['beat']
+    if type_date == "day":
+        result= count_accidents_by_day_and_beat(beat,start_date)
+    elif type_date == "week":
+        result= count_accidents_by_week_and_beat(beat,start_date)
+    else:
+        result= count_accidents_by_month_from_date(beat,start_date)
+    return jsonify({'result':result}),200
+
+
