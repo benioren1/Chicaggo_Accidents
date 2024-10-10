@@ -1,37 +1,39 @@
 import csv
-from database.connect import *
+from database.connect import Accidents, Location, Injuries, Dates
 
 
 def read_csv(csv_path):
     with open(csv_path, 'r') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
             yield row
 
-def init_Chicago_db():
+
+def create_index():
+    Location.create_index('BEAT_OF_OCCURRENCE')
+
+def init_chicago_db():
     Accidents.drop()
     Location.drop()
     Injuries.drop()
     Dates.drop()
 
-
-    for row in read_csv("../data/Traffic_Crashes_-_Crashes - 20k rows.csv"):
-
+    for row in read_csv('../data/Traffic_Crashes_-_Crashes - 20k rows.csv'):
         location = {
-            'beat_of_occurrence': row['BEAT_OF_OCCURRENCE'],
-            'street_no' : row['STREET_NO'],
-            'street_direction': row['STREET_DIRECTION'],
-            'street_name': row['STREET_NAME'],
-            'longitude': row['LONGITUDE'],
-            'latitude': row['LATITUDE'],
-            'location': row['LOCATION']
+            'STREET_NO': row['STREET_NO'],
+            'STREET_DIRECTION': row['STREET_DIRECTION'],
+            'STREET_NAME': row['STREET_NAME'],
+            'LATITUDE': row['LATITUDE'],
+            'LONGITUDE': row['LONGITUDE'],
+            'LOCATION': row['LOCATION'],
+            'BEAT_OF_OCCURRENCE': row['BEAT_OF_OCCURRENCE']
         }
 
-        locationId = Location.insert_one(location).inserted_id
+        location_id = Location.insert_one(location).inserted_id
 
-        injuries = {
-            'INJURIES_TOTAL': row['INJURIES_TOTAL'],
+        injurie = {
             'MOST_SEVERE_INJURY': row['MOST_SEVERE_INJURY'],
+            'INJURIES_TOTAL': row['INJURIES_TOTAL'],
             'INJURIES_FATAL': row['INJURIES_FATAL'],
             'INJURIES_INCAPACITATING': row['INJURIES_INCAPACITATING'],
             'INJURIES_NON_INCAPACITATING': row['INJURIES_NON_INCAPACITATING'],
@@ -39,19 +41,21 @@ def init_Chicago_db():
             'INJURIES_NO_INDICATION': row['INJURIES_NO_INDICATION'],
             'INJURIES_UNKNOWN': row['INJURIES_UNKNOWN']
         }
-        injuriesId = Injuries.insert_one(injuries).inserted_id
+
+        injurie_id = Injuries.insert_one(injurie).inserted_id
 
         date = {
             'CRASH_DATE_EST_I': row['CRASH_DATE_EST_I'],
             'CRASH_DATE': row['CRASH_DATE'],
+            'CRASH_YEAR': row['CRASH_DATE'].split('/')[2].split(' ')[0],
             'CRASH_HOUR': row['CRASH_HOUR'],
             'CRASH_DAY_OF_WEEK': row['CRASH_DAY_OF_WEEK'],
             'CRASH_MONTH': row['CRASH_MONTH']
         }
 
-        datesId = Dates.insert_one(date).inserted_id
+        dates_id = Dates.insert_one(date).inserted_id
 
-        Traffic_Conditions = {
+        Traffic_Condition = {
             'DEVICE_CONDITION': row['DEVICE_CONDITION'],
             'WEATHER_CONDITION': row['WEATHER_CONDITION'],
             'LIGHTING_CONDITION': row['LIGHTING_CONDITION'],
@@ -83,13 +87,14 @@ def init_Chicago_db():
             'WORK_ZONE_TYPE': row['WORK_ZONE_TYPE'],
             'WORKERS_PRESENT_I': row['WORKERS_PRESENT_I'],
             'NUM_UNITS': row['NUM_UNITS'],
-            'location_id':locationId,
-            'injuries_id': injuriesId,
-            'date_id': datesId,
-            'traffic_conditions_id': Traffic_Conditions
+            'LOCATION_ID': location_id,
+            'INJURIES': injurie_id,
+            'TRAFFIC_CONDITION': Traffic_Condition,
+            'DATES': dates_id
         }
 
-
         Accidents.insert_one(accident)
+    create_index()
 
-init_Chicago_db()
+
+init_chicago_db()
